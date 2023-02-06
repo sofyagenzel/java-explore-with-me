@@ -18,11 +18,11 @@ public class Stat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "app", nullable = false)
+    @Column(name = "app", nullable = false, length = 250)
     private String app;
-    @Column(name = "uri", nullable = false)
+    @Column(name = "uri", nullable = false, length = 250)
     private String uri;
-    @Column(name = "ip", nullable = false)
+    @Column(name = "ip", nullable = false, length = 20)
     private String ip;
     @Column(name = "timestamp")
     private LocalDateTime timeStamp;

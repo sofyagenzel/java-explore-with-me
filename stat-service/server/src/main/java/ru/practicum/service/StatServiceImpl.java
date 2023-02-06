@@ -25,9 +25,7 @@ public class StatServiceImpl implements StatService {
     @Override
     @Transactional
     public StatisticResponseDto createQuery(StatisticRequestDto statisticRequestDto) {
-        Stat stats = new Stat();
-        stats.setTimeStamp(LocalDateTime.now());
-        StatMapper.toStat(stats, statisticRequestDto);
+        Stat stats = StatMapper.toStat(statisticRequestDto);
         Stat createdStat = statRepository.save(stats);
         return StatMapper.toStatDto(createdStat);
     }

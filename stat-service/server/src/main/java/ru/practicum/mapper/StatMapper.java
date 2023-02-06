@@ -5,7 +5,7 @@ import ru.practicum.StatisticRequestDto;
 import ru.practicum.StatisticResponseDto;
 import ru.practicum.model.Stat;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 public class StatMapper {
     public static StatisticResponseDto toStatDto(Stat stat) {
@@ -15,11 +15,12 @@ public class StatMapper {
                 .build();
     }
 
-    public static void toStat(Stat stat, StatisticRequestDto statDto) {
-        stat.setId(statDto.getId());
-        Optional.ofNullable(statDto.getApp()).ifPresent(stat::setApp);
-        Optional.ofNullable(statDto.getUri()).ifPresent(stat::setUri);
-        Optional.ofNullable(statDto.getIp()).ifPresent(stat::setIp);
-        Optional.ofNullable(statDto.getTimeStamp()).ifPresent(stat::setTimeStamp);
+    public static Stat toStat(StatisticRequestDto statDto) {
+        return new Stat(
+                statDto.getId(),
+                statDto.getApp() != null ? statDto.getApp() : null,
+                statDto.getUri() != null ? statDto.getUri() : null,
+                statDto.getIp() != null ? statDto.getIp() : null,
+                LocalDateTime.now());
     }
 }
