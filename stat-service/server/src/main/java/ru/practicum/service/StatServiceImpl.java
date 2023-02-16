@@ -11,7 +11,6 @@ import ru.practicum.model.StatResult;
 import ru.practicum.repository.StatRepository;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ public class StatServiceImpl implements StatService {
     }
 
     @Override
-    public List<StatisticResponseDto> getStat(LocalDateTime start, LocalDateTime end, String[] uris, boolean unique) {
+    public List<StatisticResponseDto> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
         List<StatResult> result;
         if (uris == null) {
             if (unique) {
@@ -42,10 +41,9 @@ public class StatServiceImpl implements StatService {
         } else {
             if (unique) {
                 result = statRepository.findDistinctAndTimeStampBetweenAndUriIn(start,
-                        end, Arrays.stream(uris).collect(Collectors.toList()));
+                        end, uris);
             } else {
-                result = statRepository.findAndTimeStampBetweenAndUriIn(start,
-                        end, Arrays.stream(uris).collect(Collectors.toList()));
+                result = statRepository.findAndTimeStampBetweenAndUriIn(start, end, uris);
             }
         }
         return result.stream()
