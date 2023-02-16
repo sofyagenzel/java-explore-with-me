@@ -29,5 +29,3 @@ public interface StatRepository extends JpaRepository<Stat, Long> {
             "GROUP BY a.uri, a.app")
     List<StatResult> findAndTimeStampBetween(LocalDateTime start, LocalDateTime end);
 }
-
-
