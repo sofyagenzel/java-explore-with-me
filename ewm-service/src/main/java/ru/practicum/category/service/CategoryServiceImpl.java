@@ -36,7 +36,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Категория не найдена"));
+                .orElseThrow(() -> new ObjectNotFoundException("Категория не найдена " + id));
         CategoryMapper.toCategory(category, categoryDto);
         return CategoryMapper.toCategoryDto(category);
     }
@@ -49,14 +49,14 @@ public class CategoryServiceImpl implements CategoryService {
         if (event.isEmpty()) {
             categoryRepository.deleteById(id);
         } else {
-            throw new ForbiddenException("У категории есть события");
+            throw new ForbiddenException("У категории " + id + "есть события");
         }
     }
 
     @Override
     public CategoryDto getCategoryById(Long id) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Категория не найдена"));
+                .orElseThrow(() -> new ObjectNotFoundException("Категория не найдена " + id));
         return CategoryMapper.toCategoryDto(category);
     }
 

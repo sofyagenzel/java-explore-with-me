@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getById(Long id) {
         User user = repository.findById(id)
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден " + id));
         return UserMapper.toUserDto(user);
     }
 }

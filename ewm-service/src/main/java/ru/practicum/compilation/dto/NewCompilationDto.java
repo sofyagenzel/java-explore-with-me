@@ -10,11 +10,10 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-
 public class NewCompilationDto {
-    Long id;
-    List<Long> events;
-    Boolean pinned;
+    private Long id;
+    private List<Long> events;
+    private Boolean pinned;
     @NotBlank
-    String title;
+    private String title;
 }

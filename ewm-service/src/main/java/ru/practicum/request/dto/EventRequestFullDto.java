@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class EventRequestFullDto {
-    Long id;
-    Long requester;
-    Long event;
-    RequestStatus status;
-    LocalDateTime created;
+    private Long id;
+    private Long requester;
+    private Long event;
+    private RequestStatus status;
+    private LocalDateTime created;
 }

@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserSearch {
+public class UserSearchDto {
     private String text;
     private List<Long> categories;
     private Boolean paid;

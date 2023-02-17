@@ -31,21 +31,10 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public List<StatisticResponseDto> getStat(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        List<StatResult> result;
-        if (uris == null) {
-            if (unique) {
-                result = statRepository.findDistinctAndTimeStampBetween(start, end);
-            } else {
-                result = statRepository.findAndTimeStampBetween(start, end);
-            }
-        } else {
-            if (unique) {
-                result = statRepository.findDistinctAndTimeStampBetweenAndUriIn(start,
-                        end, uris);
-            } else {
-                result = statRepository.findAndTimeStampBetweenAndUriIn(start, end, uris);
-            }
-        }
+        List<StatResult> result = uris == null && unique ? statRepository.findDistinctAndTimeStampBetween(start, end) :
+                (uris == null ? statRepository.findAndTimeStampBetween(start, end) : (unique ?
+                        statRepository.findDistinctAndTimeStampBetweenAndUriIn(start, end, uris) :
+                        statRepository.findAndTimeStampBetweenAndUriIn(start, end, uris)));
         return result.stream()
                 .map(a -> new StatisticResponseDto(a.getApp(), a.getUri(), a.getHit()))
                 .sorted(Comparator.comparingLong(StatisticResponseDto::getHits).reversed())

@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AdminSearch {
+public class AdminSearchDto {
     private static final String DATETIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private List<Long> users;
     private List<State> states;

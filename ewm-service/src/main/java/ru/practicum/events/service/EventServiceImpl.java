@@ -44,12 +44,12 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto createEvent(NewEventDto newEventDto, Long userId) {
         if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ForbiddenException("Не корректная дата");
+            throw new ForbiddenException("Не корректная дата " + newEventDto.getEventDate());
         }
         Event event = EventMapper.toEvent(newEventDto);
         var initiator = userRepository.findById(userId);
         if (initiator.isEmpty()) {
-            throw new ObjectNotFoundException("Пользователь не найден");
+            throw new ObjectNotFoundException("Пользователь не найден " + userId);
         } else {
             event.setInitiator(initiator.get());
         }
@@ -63,27 +63,25 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto updateEventUser(Long userId, Long eventId, EventUserRequest eventDto) {
         if (eventDto.getEventDate() != null && eventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ForbiddenException("Не корректная дата");
+            throw new ForbiddenException("Не корректная дата " + eventDto.getEventDate());
         }
         var eventPresent = eventRepository.findById(eventId);
-        if (eventPresent.isPresent()) {
-            var event = eventPresent.get();
-            if (event.getInitiator().getId().equals(userId)) {
-                if (event.getState() == State.PUBLISHED) {
-                    throw new ForbiddenException("Событие нельзя изменить");
-                }
-                EventMapper.toEventUserUpdate(event, eventDto);
-                if (eventDto.getStateAction() != null) {
-                    event.setState(StateAction.stringToState(eventDto.getStateAction()));
-                }
-                event.setId(eventId);
-                return EventMapper.toEventFullDto(event);
-            } else {
-                throw new ObjectNotFoundException("Пользоватль не найден");
-            }
-        } else {
-            throw new ObjectNotFoundException("Событие не найдено");
+        if (!eventPresent.isPresent()) {
+            throw new ObjectNotFoundException("Событие не найдено " + eventId);
         }
+        var event = eventPresent.get();
+        if (!event.getInitiator().getId().equals(userId)) {
+            throw new ObjectNotFoundException("Пользователь не найден " + userId);
+        }
+        if (event.getState() == State.PUBLISHED) {
+            throw new ForbiddenException("Событие нельзя изменить " + eventId);
+        }
+        EventMapper.toEventUserUpdate(event, eventDto);
+        if (eventDto.getStateAction() != null) {
+            event.setState(StateAction.stringToState(eventDto.getStateAction()));
+        }
+        event.setId(eventId);
+        return EventMapper.toEventFullDto(event);
     }
 
     @Override
@@ -91,7 +89,7 @@ public class EventServiceImpl implements EventService {
         Pageable pageable = PageRequest.of(from / size, size);
         var initiator = userRepository.findById(userId);
         if (initiator.isEmpty()) {
-            throw new ObjectNotFoundException("Пользователь не найден");
+            throw new ObjectNotFoundException("Пользователь не найден " + userId);
         } else {
             return eventRepository.findAllByInitiator(initiator.get(), pageable)
                     .stream()
@@ -104,7 +102,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getAllByUserIdAndEventId(Long userId, Long eventId) {
         var initiator = userRepository.findById(userId);
         if (initiator.isEmpty()) {
-            throw new ObjectNotFoundException("Пользователь не найден");
+            throw new ObjectNotFoundException("Пользователь не найден " + userId);
         } else {
             return EventMapper.toEventFullDto(eventRepository.findEventByInitiatorAndId(initiator.get(), eventId));
         }
@@ -114,11 +112,11 @@ public class EventServiceImpl implements EventService {
     public List<EventRequestFullDto> getAllRequests(Long userId, Long eventId) {
         var initiator = userRepository.findById(userId);
         if (initiator.isEmpty()) {
-            throw new ObjectNotFoundException("Пользователь не найден");
+            throw new ObjectNotFoundException("Пользователь не найден " + userId);
         }
         var event = eventRepository.findByInitiatorAndId(initiator.get(), eventId);
         if (event.isEmpty()) {
-            throw new ObjectNotFoundException("Событие не найдено");
+            throw new ObjectNotFoundException("Событие не найдено" + eventId);
         }
         return requestRepository.findAllEventRequestsByEventIs(event.get())
                 .stream().map(RequestMapper::toEventRequestDto)
@@ -126,7 +124,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> getEventAdmin(AdminSearch adminSearch, int from, int size) {
+    public List<EventFullDto> getEventAdmin(AdminSearchDto adminSearch, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
         List<Event> events = eventRepository.findAll(getRequestParam(adminSearch), pageable).getContent();
         return events.stream().map(event -> EventMapper.toEventFullDto(event)).collect(Collectors.toList());
@@ -136,38 +134,37 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto updateEventAdmin(Long eventId, EventAdminRequest eventDtoRequest) {
         if (eventDtoRequest.getEventDate() != null && eventDtoRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new ForbiddenException("Не корректная дата");
+            throw new ForbiddenException("Не корректная дата " + eventDtoRequest.getEventDate());
         }
         var eventOptional = eventRepository.findById(eventId);
-        if (eventOptional.isPresent()) {
-            var event = eventOptional.get();
-            if (eventDtoRequest.getStateAction() != null) {
-                if (StateAction.stringToState(String.valueOf(eventDtoRequest.getStateAction())) == event.getState()) {
-                    throw new ForbiddenException("Не корректный статус");
-                }
-                if (StateAction.stringToStateAction(String.valueOf(eventDtoRequest.getStateAction())) == StateAction.PUBLISH_EVENT
-                        && event.getState() == State.CANCELED) {
-                    throw new ForbiddenException("Не корректный статус");
-                }
-                if (StateAction.stringToStateAction(String.valueOf(eventDtoRequest.getStateAction())) == StateAction.REJECT_EVENT
-                        && event.getState() == State.PUBLISHED) {
-                    throw new ForbiddenException("Не корректный статус");
-                }
-            }
-            EventMapper.toEvent(event, eventDtoRequest);
-            if (StateAction.stringToStateAction(String.valueOf(eventDtoRequest.getStateAction())) == StateAction.PUBLISH_EVENT) {
-                event.setPublishedOn(LocalDateTime.now().withNano(0));
-            }
-            event.setState(StateAction.stringToState(String.valueOf(eventDtoRequest.getStateAction())));
-            event.setId(eventId);
-            return EventMapper.toEventFullDto(event);
-        } else {
-            throw new ObjectNotFoundException(String.format("Событие не найдено", eventId));
+        if (!eventOptional.isPresent()) {
+            throw new ObjectNotFoundException(String.format("Событие не найдено " + eventId));
         }
+        var event = eventOptional.get();
+        if (eventDtoRequest.getStateAction() != null) {
+            if (StateAction.stringToState(String.valueOf(eventDtoRequest.getStateAction())) == event.getState()) {
+                throw new ForbiddenException("Не корректный статус " + eventDtoRequest.getStateAction());
+            }
+            if (StateAction.stringToStateAction(String.valueOf(eventDtoRequest.getStateAction())) == StateAction.PUBLISH_EVENT
+                    && event.getState() == State.CANCELED) {
+                throw new ForbiddenException("Не корректный статус " + eventDtoRequest.getStateAction());
+            }
+            if (StateAction.stringToStateAction(String.valueOf(eventDtoRequest.getStateAction())) == StateAction.REJECT_EVENT
+                    && event.getState() == State.PUBLISHED) {
+                throw new ForbiddenException("Не корректный статус " + eventDtoRequest.getStateAction());
+            }
+        }
+        EventMapper.toEvent(event, eventDtoRequest);
+        if (StateAction.stringToStateAction(String.valueOf(eventDtoRequest.getStateAction())) == StateAction.PUBLISH_EVENT) {
+            event.setPublishedOn(LocalDateTime.now().withNano(0));
+        }
+        event.setState(StateAction.stringToState(String.valueOf(eventDtoRequest.getStateAction())));
+        event.setId(eventId);
+        return EventMapper.toEventFullDto(event);
     }
 
     @Override
-    public List<EventShortDto> getAllEventsPublic(UserSearch userSearch,
+    public List<EventShortDto> getAllEventsPublic(UserSearchDto userSearch,
                                                   int from,
                                                   int size,
                                                   HttpServletRequest request) {
@@ -208,12 +205,12 @@ public class EventServiceImpl implements EventService {
         client.createStatistic(statRequestDto);
         var event = eventRepository.findById(id);
         if (event.isEmpty()) {
-            throw new ObjectNotFoundException("Событие не найдено");
+            throw new ObjectNotFoundException("Событие не найдено " + id);
         }
         return EventMapper.toEventFullDto(event.get());
     }
 
-    private BooleanBuilder getRequestParam(AdminSearch param) {
+    private BooleanBuilder getRequestParam(AdminSearchDto param) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
 
         if (param.getUsers() != null) {
@@ -234,7 +231,7 @@ public class EventServiceImpl implements EventService {
         return booleanBuilder;
     }
 
-    private BooleanBuilder getRequestParamForDb(UserSearch param) {
+    private BooleanBuilder getRequestParamForDb(UserSearchDto param) {
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         booleanBuilder.and(QEvent.event.state.eq(State.PUBLISHED));
         if (param.getText() != null) {

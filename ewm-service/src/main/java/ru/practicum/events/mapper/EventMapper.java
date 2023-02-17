@@ -35,24 +35,21 @@ public class EventMapper {
     }
 
     public static Event toEvent(Event event, EventAdminRequest eventAdminRequest) {
-
-        if (eventAdminRequest.getAnnotation() != null) event.setAnnotation(eventAdminRequest.getAnnotation());
-        if (eventAdminRequest.getDescription() != null) event.setDescription(eventAdminRequest.getDescription());
-        if (eventAdminRequest.getEventDate() != null) event.setEventDate(eventAdminRequest.getEventDate());
-        if (eventAdminRequest.getPaid() != null) event.setPaid(eventAdminRequest.getPaid());
-        if (eventAdminRequest.getParticipantLimit() != null)
-            event.setParticipantLimit(eventAdminRequest.getParticipantLimit());
-        if (eventAdminRequest.getRequestModeration() != null)
-            event.setRequestModeration(eventAdminRequest.getRequestModeration());
-        if (eventAdminRequest.getTitle() != null) event.setTitle(eventAdminRequest.getTitle());
+        Optional.ofNullable(eventAdminRequest.getAnnotation()).ifPresent(event::setAnnotation);
+        Optional.ofNullable(eventAdminRequest.getDescription()).ifPresent(event::setDescription);
+        Optional.ofNullable(eventAdminRequest.getEventDate()).ifPresent(event::setEventDate);
+        Optional.ofNullable(eventAdminRequest.getPaid()).ifPresent(event::setPaid);
+        Optional.ofNullable(eventAdminRequest.getParticipantLimit()).ifPresent(event::setParticipantLimit);
+        Optional.ofNullable(eventAdminRequest.getRequestModeration()).ifPresent(event::setRequestModeration);
+        Optional.ofNullable(eventAdminRequest.getTitle()).ifPresent(event::setTitle);
         return event;
     }
 
     public static Event toEventUserUpdate(Event event, EventUserRequest eventUserRequest) {
-        if (eventUserRequest.getAnnotation() != null) event.setAnnotation(eventUserRequest.getAnnotation());
+        Optional.ofNullable(eventUserRequest.getAnnotation()).ifPresent(event::setAnnotation);
         Optional.ofNullable(eventUserRequest.getDescription()).ifPresent(event::setDescription);
         Optional.ofNullable(eventUserRequest.getEventDate()).ifPresent(event::setEventDate);
-        if (eventUserRequest.getPaid() != null) event.setPaid(eventUserRequest.getPaid());
+        Optional.ofNullable(eventUserRequest.getPaid()).ifPresent(event::setPaid);
         Optional.ofNullable(eventUserRequest.getParticipantLimit()).ifPresent(event::setParticipantLimit);
         event.setRequestModeration(eventUserRequest.getRequestModeration());
         Optional.ofNullable(eventUserRequest.getTitle()).ifPresent(event::setTitle);

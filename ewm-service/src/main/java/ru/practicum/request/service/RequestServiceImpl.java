@@ -36,18 +36,18 @@ public class RequestServiceImpl implements RequestService {
         Request eventRequest = new Request();
         eventRequest.setCreated(LocalDateTime.now().withNano(0));
         var requester = userRepository.findById(userId)
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден"));
+                .orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден " + userId));
         var event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ObjectNotFoundException("Событие не найдено"));
+                .orElseThrow(() -> new ObjectNotFoundException("Событие не найдено " + eventId));
         if (Objects.equals(event.getInitiator().getId(), userId)) {
-            throw new ForbiddenException("Не корректный инициатор");
+            throw new ForbiddenException("Не корректный инициатор " + event.getInitiator().getId());
         }
         Optional<Request> requestDb = requestRepository.findByRequesterIdAndEventId(userId, eventId);
         if (requestDb.isPresent()) {
-            throw new ForbiddenException("Повторный запрос");
+            throw new ForbiddenException("Повторный запрос от пользователя " + userId + " на событие" + eventId);
         }
         if (event.getState() != State.PUBLISHED) {
-            throw new ForbiddenException("Не корректный статус");
+            throw new ForbiddenException("Не корректный статус " + event.getState());
         }
         if (event.getParticipantLimit() == 0) {
             throw new ForbiddenException("Участников должно быть больше 0");
@@ -68,7 +68,7 @@ public class RequestServiceImpl implements RequestService {
     public List<EventRequestFullDto> getRequest(Long userId) {
         var requester = userRepository.findById(userId);
         if (requester.isEmpty()) {
-            throw new ObjectNotFoundException("Пользователь не найден");
+            throw new ObjectNotFoundException("Пользователь не найден " + userId);
         } else {
             return requestRepository.findEventRequestsByRequester(requester.get())
                     .stream()
@@ -82,7 +82,7 @@ public class RequestServiceImpl implements RequestService {
     public EventRequestFullDto updateCancel(Long userId, Long requestId) {
         var requester = userRepository.findById(userId);
         if (requester.isEmpty()) {
-            throw new ObjectNotFoundException("Пользователь не найден");
+            throw new ObjectNotFoundException("Пользователь не найден " + userId);
         }
         var result = requestRepository.findAEventRequestByIdIsAndRequesterIs(requestId, requester.get());
         result.setStatus(RequestStatus.CANCELED);
@@ -99,11 +99,11 @@ public class RequestServiceImpl implements RequestService {
         EventRequestStatusUpdateResultDto eventRequestListDto = new EventRequestStatusUpdateResultDto();
         var requester = userRepository.findById(userId);
         if (requester.isEmpty()) {
-            throw new ObjectNotFoundException("Пользователь не найден");
+            throw new ObjectNotFoundException("Пользователь не найден " + userId);
         }
         var eventOptional = eventRepository.findByInitiatorAndId(requester.get(), eventId);
         if (eventOptional.isEmpty()) {
-            throw new ObjectNotFoundException("Событие не найдено");
+            throw new ObjectNotFoundException("Событие не найдено " + eventId);
         }
         var event = eventOptional.get();
         if (event.getParticipantLimit() == 0) {

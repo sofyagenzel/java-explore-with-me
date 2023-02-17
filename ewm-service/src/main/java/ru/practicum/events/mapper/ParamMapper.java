@@ -1,7 +1,7 @@
 package ru.practicum.events.mapper;
 
-import ru.practicum.events.dto.AdminSearch;
-import ru.practicum.events.dto.UserSearch;
+import ru.practicum.events.dto.AdminSearchDto;
+import ru.practicum.events.dto.UserSearchDto;
 import ru.practicum.events.model.Sort;
 import ru.practicum.events.model.State;
 
@@ -13,9 +13,9 @@ public class ParamMapper {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static AdminSearch toAdminSearch(List<Long> users, List<State> states, List<Long> categories,
-                                            String rangeStart, String rangeEnd) {
-        AdminSearch param = new AdminSearch();
+    public static AdminSearchDto toAdminSearch(List<Long> users, List<State> states, List<Long> categories,
+                                               String rangeStart, String rangeEnd) {
+        AdminSearchDto param = new AdminSearchDto();
         param.setUsers(users);
         param.setStates(states);
         param.setCategories(categories);
@@ -28,9 +28,9 @@ public class ParamMapper {
         return param;
     }
 
-    public static UserSearch toUserSearch(String text, List<Long> categories, Boolean paid, String rangeStart,
-                                          String rangeEnd, Boolean onlyAvailable, String sort) {
-        UserSearch param = new UserSearch();
+    public static UserSearchDto toUserSearch(String text, List<Long> categories, Boolean paid, String rangeStart,
+                                             String rangeEnd, Boolean onlyAvailable, String sort) {
+        UserSearchDto param = new UserSearchDto();
         if (text != null) {
             param.setText(text.toLowerCase());
         }

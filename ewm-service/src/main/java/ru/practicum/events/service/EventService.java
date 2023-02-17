@@ -17,11 +17,11 @@ public interface EventService {
 
     List<EventRequestFullDto> getAllRequests(Long userId, Long eventId);
 
-    List<EventFullDto> getEventAdmin(AdminSearch adminSearch, int from, int size);
+    List<EventFullDto> getEventAdmin(AdminSearchDto adminSearch, int from, int size);
 
     EventFullDto updateEventAdmin(Long eventId, EventAdminRequest eventDtoRequest);
 
-    List<EventShortDto> getAllEventsPublic(UserSearch userSearch, int from, int size, HttpServletRequest request);
+    List<EventShortDto> getAllEventsPublic(UserSearchDto userSearch, int from, int size, HttpServletRequest request);
 
     EventFullDto getEventPublicById(Long id, HttpServletRequest request);
 }

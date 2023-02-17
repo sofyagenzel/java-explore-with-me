@@ -15,7 +15,7 @@ import java.util.List;
 public class CompilationControllerPublic {
     private final CompilationService compilationService;
 
-    @GetMapping()
+    @GetMapping
     public List<CompilationDto> getCompilations(@RequestParam(name = "pinned", defaultValue = "false") Boolean pinned,
                                                 @RequestParam(name = "from", defaultValue = "0") int from,
                                                 @RequestParam(name = "size", defaultValue = "10") int size) {

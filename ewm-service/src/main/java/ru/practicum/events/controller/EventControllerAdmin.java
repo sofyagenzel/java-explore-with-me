@@ -3,7 +3,7 @@ package ru.practicum.events.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.events.dto.AdminSearch;
+import ru.practicum.events.dto.AdminSearchDto;
 import ru.practicum.events.dto.EventAdminRequest;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.mapper.ParamMapper;
@@ -27,7 +27,7 @@ public class EventControllerAdmin {
                                             @RequestParam(required = false) String rangeEnd,
                                             @RequestParam(name = "from", defaultValue = "0") int from,
                                             @RequestParam(name = "size", defaultValue = "10") int size) {
-        AdminSearch param = ParamMapper.toAdminSearch(userIds, states, categories, rangeStart, rangeEnd);
+        AdminSearchDto param = ParamMapper.toAdminSearch(userIds, states, categories, rangeStart, rangeEnd);
         return eventService.getEventAdmin(param, from, size);
     }
 

@@ -5,7 +5,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
-import ru.practicum.events.dto.UserSearch;
+import ru.practicum.events.dto.UserSearchDto;
 import ru.practicum.events.mapper.ParamMapper;
 import ru.practicum.events.service.EventService;
 
@@ -21,7 +21,7 @@ import java.util.List;
 public class EventControllerPublic {
     private final EventService eventService;
 
-    @GetMapping()
+    @GetMapping
     public List<EventShortDto> getAllEventsPublic(@RequestParam(name = "text", required = false) String text,
                                                   @RequestParam(name = "categories", required = false) List<Long> categories,
                                                   @RequestParam(name = "paid", required = false) Boolean paid,
@@ -32,7 +32,7 @@ public class EventControllerPublic {
                                                   @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                   @Positive @RequestParam(name = "size", defaultValue = "10") Integer size,
                                                   HttpServletRequest request) {
-        UserSearch param = ParamMapper.toUserSearch(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort);
+        UserSearchDto param = ParamMapper.toUserSearch(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort);
         return eventService.getAllEventsPublic(param, from, size, request);
     }
 

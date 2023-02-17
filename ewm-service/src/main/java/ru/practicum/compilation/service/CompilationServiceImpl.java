@@ -39,17 +39,16 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto updateCompilation(Long id, NewCompilationDto newCompilationDto) {
         var compilationOptional = repository.findById(id);
-        if (compilationOptional.isPresent()) {
-            var compilation = compilationOptional.get();
-            CompilationMapper.toCompilation(compilation, newCompilationDto);
-            compilation.setId(id);
-            if (newCompilationDto.getEvents() != null) {
-                compilation.setEvents(eventRepository.findAllByIdIn(newCompilationDto.getEvents()));
-            }
-            return CompilationMapper.toCompilationDto(compilation);
-        } else {
-            throw new ObjectNotFoundException("Подборка не найдена");
+        if (!compilationOptional.isPresent()) {
+            throw new ObjectNotFoundException("Подборка не найдена " + id);
         }
+        var compilation = compilationOptional.get();
+        CompilationMapper.toCompilation(compilation, newCompilationDto);
+        compilation.setId(id);
+        if (newCompilationDto.getEvents() != null) {
+            compilation.setEvents(eventRepository.findAllByIdIn(newCompilationDto.getEvents()));
+        }
+        return CompilationMapper.toCompilationDto(compilation);
     }
 
     @Transactional
