@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users,events,category,request,compilation,compilation_events cascade;
+DROP TABLE IF EXISTS users,events,category,request,compilation,compilation_events,subscriptions cascade;
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     email varchar(50) UNIQUE NOT NULL,
@@ -47,4 +47,11 @@ CREATE TABLE IF NOT EXISTS compilation (
 CREATE TABLE IF NOT EXISTS compilation_events(
     compilation_id BIGINT  REFERENCES compilation(id),
     events_id BIGINT  REFERENCES events(id)
+);
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+    id  BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id   BIGINT,
+    subscriber_id BIGINT,
+    status    VARCHAR (30)
 );
